@@ -1,12 +1,8 @@
 if (!(Get-Module -Name BoxyPrompt)) {
     Import-Module .\BoxyPrompt.ps1
 }
-
-Class ValidNumbers : System.Management.Automation.IValidateSetValuesGenerator {
-    [String[]] GetValidValues() {
-        $ValidNumbers = 1..(Get-Item .\menus).count
-        return [string[]] $ValidNumbers
-    }
+if (!(Get-Module -Name Functions)) {
+    Import-Module .\Functions.ps1
 }
 
 function mini-u {
@@ -16,35 +12,56 @@ function mini-u {
     command line interface menus in PowerShell. To use this, run
     'Import-Module .\Mini-u.ps1' from within this project's directory.
 .DESCRIPTION
-    The main menu is a representation of the names of JSON files within
-    the 'menus' directory with numbers respective to the amount of JSON
-    files in this directory i.e., an array is dynamically created based
-    on the .Count of the the items in 'menus'. When a selection is made
-    from the main menu, a new menu is presented. This submenu is the
-    contents of the selected JSON file, which is another menu. The logic
-    is repeated for the submenu choice selection.
+    This little app is an answer to a question from Reddit user
+    Subject_Chemistry269, although it seems to have taken a bit of
+    a detour... I hope this helps you out!
 
     BoxyPrompt.ps1 draws a box around a string to simply make it
     prettier. This only works for single line strings.
 .NOTES
-    Version:    v1.0 -- 7 Dec 2022
+    Version:    v1.0 -- 14 Dec 2022
 	Author:     Lucas McGlamery
 .EXAMPLE
 	PS> mini-u
 #>
-    $MainMenu = (Get-Item .\menus\*).BaseName
+    $MainMenu = Get-Content .\menus\TechnicalMenu.json | ConvertFrom-Json
+    $Directories = (Get-Content .\menus\Directories.json | ConvertFrom-Json).Directories
 
-    Clear-Host
-    BoxyPrompt("Select a submenu by number")
-    1..$MainMenu.Count | ForEach-Object {
-        Write-Host $_ $MainMenu[$_ - 1] | Format-List
-    }
-    [ValidateSet([ValidNumbers],ErrorMessage = "Value '{0}' is invalid. Try one of: {1}")]$SubMenuSelection = Read-Host -Prompt " " #; Clear-Host
-
-    $MenuOptions = Get-Content -Path .\menus\$($MainMenu[$SubMenuSelection - 1])".json" | ConvertFrom-Json
-    BoxyPrompt("Select a menu option")
-    1..$MenuOptions.Count | ForEach-Object {
-        Write-Host $_ $MenuOptions[$_ - 1].Name
-    } | Format-List
-    $MenuOptionSelection = Read-Host -Prompt " " ; Clear-Host
+    do{
+        Clear-Host
+        BoxyPrompt("Select a task")
+        1..$MainMenu.Count | ForEach-Object {
+            Write-Host $_ ($MainMenu[$_ - 1]).Name | Format-List
+        }
+        $TechnicalMenuSelection = Read-Host -Prompt " " ; Clear-Host
+    
+        $MenuObject = $($MainMenu[$TechnicalMenuSelection - 1])
+        if ($MenuObject.Name -eq 'Quit') {
+            break
+        }
+        BoxyPrompt("Select a directory")
+        1..$Directories.Count | ForEach-Object {
+            Write-Host $_ $Directories[$_ - 1]
+        } | Format-List
+        $DirectorySelection = Read-Host -Prompt " " ; Clear-Host
+        $Directory = $Directories[$DirectorySelection - 1]
+    
+        # need to check if new directory name is needed
+        if ($Directory -eq 'Other/Create new directory') {
+            BoxyPrompt("Input directory name")
+            $Directory = Read-Host -Prompt " " ; Clear-Host
+        }
+    
+        # update the selected menu object's directory name
+        $MenuObject.Params.Directory = $Directory
+    
+        # generate script text to reflect desired function against target
+        # directory with all named parameters
+        $ScriptText = $MenuObject.ScriptText
+        $MenuObject.Params | Get-Member -Type Properties | ForEach-Object Name | ForEach-Object {
+            $ScriptText = $ScriptText + ' -' + $_ + ' $' + $_
+        }
+    
+        Invoke-Expression $ScriptText
+    } until ($MenuObject.Name -eq 'Quit')
 }

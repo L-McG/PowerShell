@@ -1,0 +1,26 @@
+[
+    {
+        "Name": "Rename a directory",
+        "ScriptText": "Rename-Directory",
+        "Params": {
+            "Directory": "This will get generated in the main script"
+        }
+    },
+    {
+        "Name": "Create a New Directory",
+        "ScriptText": "Create-Directory",
+        "Params": {
+            "Directory": "This will get generated in the main script"
+        }
+    },
+    {
+        "Name": "Delete a Directory",
+        "ScriptText": "Remove-Directory",
+        "Params": {
+            "Directory": "This will get generated in the main script"
+        }
+    },
+    {
+        "Name": "Quit"
+    }
+]
