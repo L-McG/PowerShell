@@ -2,13 +2,6 @@ if (!(Get-Module -Name BoxyPrompt)) {
     Import-Module .\BoxyPrompt.ps1
 }
 
-Class ValidNumbers : System.Management.Automation.IValidateSetValuesGenerator {
-    [String[]] GetValidValues() {
-        $ValidNumbers = 1..(Get-Item .\menus).count
-        return [string[]] $ValidNumbers
-    }
-}
-
 function mini-u {
 <#
 .SYNOPSIS
@@ -39,7 +32,7 @@ function mini-u {
     1..$MainMenu.Count | ForEach-Object {
         Write-Host $_ $MainMenu[$_ - 1] | Format-List
     }
-    [ValidateSet([ValidNumbers],ErrorMessage = "Value '{0}' is invalid. Try one of: {1}")]$SubMenuSelection = Read-Host -Prompt " " #; Clear-Host
+    $SubMenuSelection = Read-Host -Prompt " " ; Clear-Host
 
     $MenuOptions = Get-Content -Path .\menus\$($MainMenu[$SubMenuSelection - 1])".json" | ConvertFrom-Json
     BoxyPrompt("Select a menu option")
