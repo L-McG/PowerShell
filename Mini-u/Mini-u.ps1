@@ -1,6 +1,7 @@
 if (!(Get-Module -Name BoxyPrompt)) {
-    Import-Module .\BoxyPrompt.ps1
+    Import-Module $PSScriptRoot\BoxyPrompt\BoxyPrompt.ps1
 }
+
 
 function mini-u {
 <#
@@ -25,17 +26,17 @@ function mini-u {
 .EXAMPLE
 	PS> mini-u
 #>
-    $MainMenu = (Get-Item .\menus\*).BaseName
+    $MainMenu = (Get-Item $PSScriptRoot\menus\*).BaseName
 
     Clear-Host
-    BoxyPrompt("Select a submenu by number")
+    "Select a submenu by number" | Boxy-Prompt -BoxWidth 40
     1..$MainMenu.Count | ForEach-Object {
         Write-Host $_ $MainMenu[$_ - 1] | Format-List
     }
     $SubMenuSelection = Read-Host -Prompt " " ; Clear-Host
 
-    $MenuOptions = Get-Content -Path .\menus\$($MainMenu[$SubMenuSelection - 1])".json" | ConvertFrom-Json
-    BoxyPrompt("Select a menu option")
+    $MenuOptions = Get-Content -Path $PSScriptRoot\menus\$($MainMenu[$SubMenuSelection - 1])".json" | ConvertFrom-Json
+    "Select a menu option" | Boxy-Prompt -BoxWidth 40
     1..$MenuOptions.Count | ForEach-Object {
         Write-Host $_ $MenuOptions[$_ - 1].Name
     } | Format-List
