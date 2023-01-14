@@ -20,6 +20,8 @@ An array object to hold text or multiple elements of text.
 Specified width integer. Default is width of the terminal.
 .PARAMETER SidePadding
 Specified padding integer for space with text and sides of box. Default is 5.
+.PARAMETER BorderCharacter
+Character to be repeated as the border.
 .EXAMPLE
 Boxy-Prompt
 .EXAMPLE
@@ -27,7 +29,7 @@ Boxy-Prompt $string
 .EXAMPLE
 $string | Boxy-Prompt
 .EXAMPLE
-$string | Boxy-Prompt -BoxWidth 420 -SidePadding 69
+$string | Boxy-Prompt -BoxWidth 420 -SidePadding 69 -BorderCharacter '!'
 #>
 . .\WrapText.ps1
 function Boxy-Prompt {
@@ -37,7 +39,9 @@ function Boxy-Prompt {
         [Parameter()]
         [int]$BoxWidth = $Host.UI.RawUI.BufferSize.Width,
         [Parameter()]
-        [int]$SidePadding = 5
+        [int]$SidePadding = 5,
+        [Parameter()]
+        [string]$BorderCharacter = "#"
     )
     if ($BoxWidth -gt $Host.UI.RawUI.BufferSize.Width) {
         $BoxWidth = $Host.UI.RawUI.BufferSize.Width
@@ -64,16 +68,16 @@ function Boxy-Prompt {
     
     1..$BoxHeight | ForEach-Object {
         if ($_ -eq 1 -or $_ -eq $BoxHeight) {
-            Write-Host ('#' * $BoxWidth -join '')
+            Write-Host ($BorderCharacter * $BoxWidth -join '')
         }
         elseif ($_ -eq 2 -or $_ -eq ($BoxHeight - 1)) {
             1..$BoxWidth | ForEach-Object {
                 if ($_ -eq 1) {
-                    Write-Host -NoNewline "#"
+                    Write-Host -NoNewline $BorderCharacter
                 } elseif ($_ -ne 1 -and $_ -ne $BoxWidth) {
                     Write-Host -NoNewline " "
                 } else {
-                    Write-Host "#"
+                    Write-Host $BorderCharacter
                 }
             }
         }
@@ -81,21 +85,21 @@ function Boxy-Prompt {
             $Prompt | ForEach-Object {
                 $LeftPadding = 0
                 [bool]$break = $false
-                Write-Host -NoNewline "#"
+                Write-Host -NoNewline $BorderCharacter
                 1..$($PromptStart - 1) | ForEach-Object {
                     $LeftPadding++
                     Write-Host -NoNewline " "
                 }
                 Write-Host -NoNewline $_
                 if ($BoxWidth -eq ($_.Length + ([math]::round($SidePadding/2)+3))) {
-                    Write-Host "#"
+                    Write-Host $BorderCharacter
                     $break = $true
                 }
                 if(!$break){
                     1..($BoxWidth - (($_.Length + $LeftPadding)+2)) | ForEach-Object {
                         Write-Host -NoNewline " "
                     }
-                    Write-Host "#"
+                    Write-Host $BorderCharacter
                 }
                 $PromptWritten = $true
             }
