@@ -1,4 +1,4 @@
-![][https://github.com/L-McG/PowerShell/tree/master/BoxyPrompt/Animation.gif]
+![](https://github.com/L-McG/PowerShell/tree/master/BoxyPrompt/Animation.gif)
 
 # Usage
 ```
