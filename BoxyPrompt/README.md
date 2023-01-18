@@ -1,5 +1,4 @@
-[def]: .\Animation.gif
-![][def]
+![][https://github.com/L-McG/PowerShell/tree/master/BoxyPrompt/Animation.gif]
 
 # Usage
 ```
