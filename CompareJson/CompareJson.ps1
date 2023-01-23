@@ -144,12 +144,14 @@ Write-Host "Table2 keys are $($Table2.Keys)"
             $Global:ParentTable += $CurrentTable
         }
         if ($null -eq $SecondTable) {
-            Write-Host "Current second table is null. Adding last parent to difference table. Breaking..." -BackgroundColor DarkYellow
+            Write-Host "Current second table is null. Adding last parent to difference table. Continuing..." -BackgroundColor DarkYellow
             if(!$Global:DifferenceTable) {
                 $Global:DifferenceTable = @()
             }
-            $Global:DifferenceTable += $Global:ParentTable[-1]
-            break
+            if($Global:DifferenceTable.Name -notcontains $Global:ParentTable[-1].Name) {
+                $Global:DifferenceTable += $Global:ParentTable[-1]
+            }
+            continue
         }
         Write-Host "The current tables are as follows: `n" -BackgroundColor Green
         Write-Line
