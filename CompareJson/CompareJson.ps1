@@ -1,6 +1,5 @@
 ###### REQUIRED FILES #########
 . .\ConvertToHashtable.ps1
-. .\WriteLine.ps1
 ###############################
 
 Function Compare-Json() {
