@@ -14,7 +14,7 @@
 function Mock-Them {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory,ValueFromPipeline)]
         [string]$string
     )
     
