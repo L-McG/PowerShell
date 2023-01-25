@@ -3,14 +3,6 @@
 . .\WriteLine.ps1
 ###############################
 
-###### DEBUG LINES ############
-<# $ReferenceFile = ".\BaselineMetaData.json"
-$ComparisonFile = ".\DeploymentMetaData.json"
-$ID = "Name"
-$ParentTable = @()
-$DifferenceTable = @() #>
-###############################
-
 Function Compare-Json() {
 <# 
 .SYNOPSIS
@@ -68,29 +60,23 @@ Compare-Json -ReferenceFile .\Reference.json -ComparisonFile .\Deployment.json
     [array]$ParentTable = @()
 )
 
-if ($ReferenceFile -and $ComparisonFile) {
-    $Table1 = Get-Content $ReferenceFile | ConvertFrom-Json -AsHashtable -Depth 10
-    $Table2 = Get-Content $ComparisonFile | ConvertFrom-Json -AsHashtable -Depth 10
-    $Table1 | ForEach-Object {
-        if ($_.Name -notcontains 'Parent') {
-            $_.Add('Parent', $true)
+    if ($ReferenceFile -and $ComparisonFile) {
+        $Table1 = Get-Content $ReferenceFile | ConvertFrom-Json -AsHashtable -Depth 10
+        $Table2 = Get-Content $ComparisonFile | ConvertFrom-Json -AsHashtable -Depth 10
+        $Table1 | ForEach-Object {
+            if ($_.Name -notcontains 'Parent') {
+                $_.Add('Parent', $true)
+            }
+        }
+        $Table2 | ForEach-Object {
+            if ($_.Name -notcontains 'Parent') {
+                $_.Add('Parent', $true)
+            }
         }
     }
-    $Table2 | ForEach-Object {
-        if ($_.Name -notcontains 'Parent') {
-            $_.Add('Parent', $true)
-        }
+    if (!$Global:ParentTable) {
+        $Global:ParentTable = @()
     }
-}
-if (!$Global:ParentTable) {
-    $Global:ParentTable = @()
-}
-write-host $ParentTable.GetType()
-Write-Host "Table1 keys are $($Table1.Keys)"
-Write-Host "Table2 keys are $($Table2.Keys)"
-
-    # set the current key name
-    # if count is one, set the table key to be the only available key
     if ($Table1.Keys.Count -gt 1) {
         $Table1Key = $ID
     } 
@@ -109,16 +95,10 @@ Write-Host "Table2 keys are $($Table2.Keys)"
     else {
         $Table2Key = $Table2.Keys
     }
-    Write-Host "Table1Key is $($Table1Key)" -ForegroundColor DarkYellow
-    Write-Host "Table2Key is $($Table2Key)" -ForegroundColor DarkYellow
 
     foreach ($Item in $Table1.$Table1Key) {
 
-        write-host "Current item in table is " $Item -ForegroundColor DarkGreen
-        Write-Host "Current list of names: " $Item.$ID
-
         if ($Item.GetType() -ne [System.String]) {
-            Write-Host "Type is not a System.String" -ForegroundColor Red
             $CurrentTable = $Table1.$Table1Key | Where-Object {
                 $_.$ID -eq $Item.$ID
             }
@@ -138,58 +118,43 @@ Write-Host "Table2 keys are $($Table2.Keys)"
             continue
         }
         if($CurrentTable.Parent){
-            Write-Host "Adding table to ParentTable..."
-            Write-Line
-            $CurrentTable
             $Global:ParentTable += $CurrentTable
         }
         if ($null -eq $SecondTable) {
-            Write-Host "Current second table is null. Adding last parent to difference table. Breaking..." -BackgroundColor DarkYellow
+            Write-Host "Current second table is null. Adding last parent to difference table. Continuing..." -BackgroundColor DarkYellow
             if(!$Global:DifferenceTable) {
                 $Global:DifferenceTable = @()
             }
-            $Global:DifferenceTable += $Global:ParentTable[-1]
-            break
+            if($Global:DifferenceTable.Name -notcontains $Global:ParentTable[-1].Name) {
+                $Global:DifferenceTable += $Global:ParentTable[-1]
+            }
+            continue
         }
-        Write-Host "The current tables are as follows: `n" -BackgroundColor Green
-        Write-Line
-        Write-Host "Current table" 
-        $CurrentTable
-        Write-Host "Second table" 
-        $SecondTable
 
         $CurrentTable.GetEnumerator() | ForEach-Object {
-            Write-host "Value is " $_.Value.$ID
             $CurrentKey = $_
             $CurrentKeyName = $_.$ID
-            Write-Host "CurrentKeyName is $($CurrentKeyName)" -ForegroundColor DarkGreen
             $CurrentSecondTable = $SecondTable.GetEnumerator() | Where-Object {
                 $_.$ID -eq $CurrentKeyName
             }
-            Write-Host "CurrentSecondTable is: $($CurrentSecondTable)" -ForegroundColor DarkBlue
-            Write-Host "Current key is: $($CurrentKey)" -ForegroundColor DarkGreen
-            if ($CurrentKey.Value.Count -gt 1) {
-                Write-Host "CurrentKey is $($CurrentKey.GetType())"
-                Write-Host "SecondTable current key is $($CurrentSecondTable.GetType())"
-                if ($CurrentKey.GetType().$ID -ne 'Hashtable') {
+            if ($CurrentKey.Value.GetType() -ne [System.String]) {
+                if ($CurrentKey.GetType().Name -ne 'Hashtable') {
                     $CurrentKey = ConvertTo-Hashtable $CurrentKey
-                    Write-Host "CurrentKey is now $($CurrentKey.GetType())"
                 }
-                if ($CurrentSecondTable.GetType().$ID -ne 'Hashtable') {
+                if ($CurrentSecondTable.GetType().Name -ne 'Hashtable') {
                     $CurrentSecondTable = ConvertTo-Hashtable $CurrentSecondTable
-                    Write-Host "SecondTable current key is now $($CurrentSecondTable.GetType())"
                 }
                 if ($_.Value.$ID) {
-                    write-host "Value found containing key $ID. Recuring function...`n" -BackgroundColor DarkMagenta
-                    Write-Line
                     Compare-Json $CurrentKey $CurrentSecondTable -ParentTable $Global:ParentTable
                 }
+            } elseif ($CurrentKey.Count -eq 1) {
                 if (!$CurrentKey.Equals($CurrentSecondTable)) {
+                    
                     if(!$Global:DifferenceTable) {
                         $Global:DifferenceTable = @()
                     }
                     if($Global:DifferenceTable.Name -notcontains $($Global:ParentTable[-1].Name)) {
-                        Write-host "Difference found. Adding $($Global:ParentTable[-1].Name) to difference table..."
+                        Write-host "Difference found. Adding $($Global:ParentTable[-1].Name) to difference table..." -BackgroundColor DarkYellow
                         $Global:DifferenceTable += $Global:ParentTable[-1]
                     continue
                     }
