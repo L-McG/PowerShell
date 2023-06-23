@@ -7,5 +7,8 @@ within two JSON files by a specified ID. ConvertToHashtable.ps1 is required to e
 the incoming objects during recursion are in the correct format. WriteLine.ps1 is used
 to improve readability during debugging.
 
-## Example
-Compare-Json -ReferenceFile .\Reference.json -ComparisonFile .\Deployment.json
+## Usage
+```powershell
+Import-Module .\CompareJson.ps1
+Compare-Json -ReferenceFile .\ReferenceFile.json -ComparisonFile .\ComparisonFile.json
+```
