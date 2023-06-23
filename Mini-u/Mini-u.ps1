@@ -1,7 +1,10 @@
+# Dependencies
 if (!(Get-Module -Name BoxyPrompt)) {
     Import-Module $PSScriptRoot\BoxyPrompt\BoxyPrompt.ps1
 }
-
+if (!(Get-Module -Name DrawMenu)) {
+    Import-Module $PSScriptRoot\DrawMenu.ps1
+}
 
 function mini-u {
 <#
@@ -19,26 +22,20 @@ function mini-u {
     is repeated for the submenu choice selection.
 
     BoxyPrompt.ps1 draws a box around a string to simply make it
-    prettier. This only works for single line strings.
+    prettier.
+
+    DrawMenu.ps1 allows the user to select menu options with the Up/Down
+    arrow keys and make a selection with 'Enter'.
 .NOTES
-    Version:    v1.0 -- 7 Dec 2022
+    Version:    v1.0 -- 07 Dec 2022
+                v1.1 -- 23 Jun 2023
 	Author:     Lucas McGlamery
 .EXAMPLE
 	PS> mini-u
 #>
     $MainMenu = (Get-Item $PSScriptRoot\menus\*).BaseName
-
-    Clear-Host
-    "Select a submenu by number" | Boxy-Prompt -BoxWidth 40
-    1..$MainMenu.Count | ForEach-Object {
-        Write-Host $_ $MainMenu[$_ - 1] | Format-List
-    }
-    $SubMenuSelection = Read-Host -Prompt " " ; Clear-Host
-
-    $MenuOptions = Get-Content -Path $PSScriptRoot\menus\$($MainMenu[$SubMenuSelection - 1])".json" | ConvertFrom-Json
-    "Select a menu option" | Boxy-Prompt -BoxWidth 40
-    1..$MenuOptions.Count | ForEach-Object {
-        Write-Host $_ $MenuOptions[$_ - 1].Name
-    } | Format-List
-    $MenuOptionSelection = Read-Host -Prompt " " ; Clear-Host
+    $SubMenuSelection = Menu $MainMenu "Main Menu" ; Clear-Host
+    $MenuOptions = Get-Content -Path $PSScriptRoot\menus\$($SubMenuSelection)".json" | ConvertFrom-Json
+    $MenuOptionSelection = Menu $MenuOptions.Name "Select a menu option"
+    Write-Host $MenuOptionSelection
 }
