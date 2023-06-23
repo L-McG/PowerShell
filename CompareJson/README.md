@@ -1,9 +1,14 @@
-# Todo
-- Create param for key filter, e.g., vmx file
-- Clean output JSON of added 'Parent' key
-- Show status for parent objects
-    - Show status for child objects
-- Generate ID for all objects
-    - Generate parent/child relationships
-- Convert to advanced function
-    - cleanup is needed
+## Synopsis
+Compare two JSON files and return a difference file.
+
+## Description
+Given a reference and comparison file, this function will recursively compare the objects
+within two JSON files by a specified ID. ConvertToHashtable.ps1 is required to ensure that
+the incoming objects during recursion are in the correct format. WriteLine.ps1 is used
+to improve readability during debugging.
+
+## Usage
+```powershell
+Import-Module .\CompareJson.ps1
+Compare-Json -ReferenceFile .\ReferenceFile.json -ComparisonFile .\ComparisonFile.json
+```
