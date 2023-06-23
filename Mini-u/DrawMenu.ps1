@@ -1,5 +1,16 @@
 function Draw-Menu {
-    param ($menuItems, $menuPosition, $menuTitle)
+    [CmdletBinding()]
+    param (
+        [Parameter()]
+        [String[]]
+        $menuItems,
+        [Parameter()]
+        [int32]
+        $menuPosition,
+        [Parameter()]
+        [String]
+        $menuTitle
+    )
     $foregroundColor = $host.UI.RawUI.ForegroundColor
     $backgroundColor = $host.UI.RawUI.BackgroundColor
     $l = $menuItems.length
@@ -17,7 +28,16 @@ function Draw-Menu {
 }
 
 function Menu {
-    param ([array]$menuItems, $menuTitle = "MENU")
+    #param ([array]$menuItems, $menuTitle = "MENU")
+    [CmdletBinding()]
+    param (
+        [Parameter()]
+        [String[]]
+        $menuItems,
+        [Parameter()]
+        [String]
+        $menuTitle = "Menu"
+    )
     $keycode = 0
     $pos = 0
     Draw-Menu $menuItems $pos $menuTitle
