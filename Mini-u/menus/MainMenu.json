@@ -1,0 +1,29 @@
+{
+    "Administrative_Tasks": {
+        "Description": "A collection of tasks performed by site adminstrators.",
+        "Backup_Users": {
+            "Description": "Backup the site user accounts to the offsite storage location."
+        }
+    },
+    "General_Tasks": {
+        "Description": "The tasks can be performed by power users to perform site-wide functions",
+        "Mass_File_Rename": {
+            "Description": "Rename all files in a target directory."
+        },
+        "Mass_File_Deletion": {
+            "Description": "Delete all files in a target directory."
+        },
+        "Generate_Icecream": {
+            "Description": "Generate more icecream than anyone knows what to do with."
+        }
+    },
+    "Nuclear_Tasks": {
+        "Description": "Save these tasks for emergency situations."
+    },
+    "Play_With_Puppies": {
+        "Description": "D'awwwwww!"
+    },
+    "Don't_Play_With_Puppies": {
+        "Description": "Your loss, loser."
+    }
+}

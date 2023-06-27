@@ -1,7 +1,6 @@
 [
     {
         "Name": "Cleanup Garbage",
-        "BogusStuff": "This is whatever you want",
         "ScriptText": "SomeFunctionInSomeModule",
         "Params": {
             "AccountName": "Maybe that function needs parameters",
@@ -10,10 +9,13 @@
     },
     {
         "Name": "Create The Garbage",
-        "SomethingElse": "Whatever"
+        "Dang": "Whatever"
     },
     {
         "Name": "Sell The Garbage",
-        "Stuff": "One computer's trash is another computer's un-trash."
+        "Wow": "One computer's trash is another computer's un-trash."
+    },
+    {
+        "Description": "This is just one big party."
     }
 ]

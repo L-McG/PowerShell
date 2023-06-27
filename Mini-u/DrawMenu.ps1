@@ -14,17 +14,29 @@ function Draw-Menu {
     $foregroundColor = $host.UI.RawUI.ForegroundColor
     $backgroundColor = $host.UI.RawUI.BackgroundColor
     $l = $menuItems.length
+    $description = (Get-Content ".\menus\$($curItem).json" | ConvertFrom-Json).Description
+    $consoleWidth = $host.ui.RawUI.WindowSize.Width
+    $leftPadding = ($consoleWidth - $menuTitle.Length) / 2
+    $paddingString = ' ' * ([Math]::Max(0, $leftPadding))
     Clear-Host
-    $menuTitle | Boxy-Prompt -BoxWidth 40
+    Write-Host $('-' * $consoleWidth -join '')
+    Write-Host ($paddingString)($menuTitle)
+    Write-Host $('-' * $consoleWidth -join '')
 
     for ($i = 0; $i -le $l; $i++) {
         Write-Host "`t" -NoNewLine
         if ($i -eq $menuPosition) {
             Write-Host "$($menuItems[$i])" -ForegroundColor $backgroundColor -BackgroundColor $foregroundColor
+            $curItem = $menuItems[$i]
         } else {
             Write-Host "$($menuItems[$i])" -ForegroundColor $foregroundColor -BackgroundColor $backgroundColor
         }
     }
+    Write-Host $('-' * $consoleWidth -join '')
+    Write-Host ($paddingString)('Description')
+    Write-Host $('-' * $consoleWidth -join '')
+    Write-Host (Get-Content ".\menus\$($curItem).json" | ConvertFrom-Json).Description
+
 }
 
 function Menu {
