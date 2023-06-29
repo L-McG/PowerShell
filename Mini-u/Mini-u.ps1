@@ -1,7 +1,3 @@
-# Dependencies
-if (!(Get-Module -Name BoxyPrompt)) {
-    Import-Module $PSScriptRoot\BoxyPrompt\BoxyPrompt.ps1
-}
 if (!(Get-Module -Name DrawMenu)) {
     Import-Module $PSScriptRoot\DrawMenu.ps1
 }
@@ -9,23 +5,18 @@ if (!(Get-Module -Name DrawMenu)) {
 function mini-u {
 <#
 .SYNOPSIS
-	This function serves as an example of how I implement dynamic
-    command line interface menus in PowerShell. To use this, run
+	This function serves as an example of how I implement command line 
+    interface menus in PowerShell. To use this, run 
     'Import-Module .\Mini-u.ps1' from within this project's directory.
 .DESCRIPTION
-    The main menu is a representation of the names of JSON files within
-    the 'menus' directory with numbers respective to the amount of JSON
-    files in this directory i.e., an array is dynamically created based
-    on the .Count of the the items in 'menus'. When a selection is made
-    from the main menu, a new menu is presented. This submenu is the
-    contents of the selected JSON file, which is another menu. The logic
-    is repeated for the submenu choice selection.
+    Using a JSON file, a main menu is generated which contain names to
+    objects within the JSON file that serve as submenus. Each submenu 
+    has addition objects that can be selected. Edit the JSON file to 
+    create your desired menu layout, currently limited to a depth of
+    2.
 
-    BoxyPrompt.ps1 draws a box around a string to simply make it
-    prettier.
-
-    DrawMenu.ps1 allows the user to select menu options with the Up/Down
-    arrow keys and make a selection with 'Enter'.
+    DrawMenu.ps1 allows the user to select menu options with the 
+    Up/Down arrow keys and make a selection with 'Enter'.
 .NOTES
     Version:    v1.0 -- 07 Dec 2022
                 v1.1 -- 23 Jun 2023
@@ -33,9 +24,12 @@ function mini-u {
 .EXAMPLE
 	PS> mini-u
 #>
-    $MainMenu = (Get-Item $PSScriptRoot\menus\*).BaseName
-    $SubMenuSelection = Menu $MainMenu "Main Menu" ; Clear-Host
-    $MenuOptions = Get-Content -Path $PSScriptRoot\menus\$($SubMenuSelection)".json" | ConvertFrom-Json
-    $MenuOptionSelection = Menu $MenuOptions.Name "Select a menu option"
+    $MainMenu = (Get-Content .\menus\MainMenu.json | ConvertFrom-Json).PSObject.Properties
+    $MainMenuSelection = Menu $MainMenu.Name "Main Menu" $MainMenu ; Clear-Host
+    $SubMenuOptions = $MainMenu | Where-Object{
+        $_.Name -eq $MainMenuSelection
+    }
+    $SubMenu = ($SubMenuOptions.Value | %{$_.PSObject.Properties | ?{$_.Name -ne 'Description'}})
+    $MenuOptionSelection = Menu $SubMenu.Name "Select a submenu option" $SubMenu
     Write-Host $MenuOptionSelection
 }

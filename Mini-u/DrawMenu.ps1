@@ -9,21 +9,30 @@ function Draw-Menu {
         $menuPosition,
         [Parameter()]
         [String]
-        $menuTitle
+        $menuTitle,
+        [Parameter()]
+        [System.Object]
+        $object,
+        [Parameter()]
+        [String]
+        $secondaryKey = 'Description'
     )
+
+    $menuLength = $menuItems.length
+    $consoleWidth = $host.ui.RawUI.WindowSize.Width
     $foregroundColor = $host.UI.RawUI.ForegroundColor
     $backgroundColor = $host.UI.RawUI.BackgroundColor
-    $l = $menuItems.length
-    $description = (Get-Content ".\menus\$($curItem).json" | ConvertFrom-Json).Description
-    $consoleWidth = $host.ui.RawUI.WindowSize.Width
-    $leftPadding = ($consoleWidth - $menuTitle.Length) / 2
-    $paddingString = ' ' * ([Math]::Max(0, $leftPadding))
+    $leftTitlePadding = ($consoleWidth - $menuTitle.Length) / 2
+    $titlePaddingString = ' ' * ([Math]::Max(0, $leftTitlePadding))
+    $leftDescriptionPadding = ($consoleWidth - $secondaryKey.Length) / 2
+    $descriptionPaddingString = ' ' * ([Math]::Max(0, $leftDescriptionPadding))
+
     Clear-Host
     Write-Host $('-' * $consoleWidth -join '')
-    Write-Host ($paddingString)($menuTitle)
+    Write-Host ($titlePaddingString)($menuTitle)
     Write-Host $('-' * $consoleWidth -join '')
 
-    for ($i = 0; $i -le $l; $i++) {
+    for ($i = 0; $i -le $menuLength; $i++) {
         Write-Host "`t" -NoNewLine
         if ($i -eq $menuPosition) {
             Write-Host "$($menuItems[$i])" -ForegroundColor $backgroundColor -BackgroundColor $foregroundColor
@@ -32,15 +41,15 @@ function Draw-Menu {
             Write-Host "$($menuItems[$i])" -ForegroundColor $foregroundColor -BackgroundColor $backgroundColor
         }
     }
-    Write-Host $('-' * $consoleWidth -join '')
-    Write-Host ($paddingString)('Description')
-    Write-Host $('-' * $consoleWidth -join '')
-    Write-Host (Get-Content ".\menus\$($curItem).json" | ConvertFrom-Json).Description
 
+    Write-Host $('-' * $consoleWidth -join '')
+    Write-Host ($descriptionPaddingString)($secondaryKey)
+    Write-Host $('-' * $consoleWidth -join '')
+    Write-Host "`t" -NoNewLine
+    Write-Host ($object | ?{$_.Name -eq $curItem}).Value.Description
 }
 
 function Menu {
-    #param ([array]$menuItems, $menuTitle = "MENU")
     [CmdletBinding()]
     param (
         [Parameter()]
@@ -48,7 +57,10 @@ function Menu {
         $menuItems,
         [Parameter()]
         [String]
-        $menuTitle = "Menu"
+        $menuTitle = "Menu",
+        [Parameter()]
+        [System.Object]
+        $object
     )
     $keycode = 0
     $pos = 0
@@ -57,11 +69,19 @@ function Menu {
         $press = $host.ui.rawui.readkey("NoEcho,IncludeKeyDown")
         $keycode = $press.virtualkeycode
         Write-host "$($press.character)" -NoNewLine
-        if ($keycode -eq 38) {$pos--}
-        if ($keycode -eq 40) {$pos++}
-        if ($pos -lt 0) {$pos = ($menuItems.length - 1)}
-        if ($pos -ge $menuItems.length) {$pos = 0}
-        Draw-Menu $menuItems $pos $menuTitle
+        if ($keycode -eq 38) {
+            $pos--
+        }
+        if ($keycode -eq 40) {
+            $pos++
+        }
+        if ($pos -lt 0) {
+            $pos = ($menuItems.length - 1)
+        }
+        if ($pos -ge $menuItems.length) {
+            $pos = 0
+        }
+        Draw-Menu $menuItems $pos $menuTitle $object
     }
     return $($menuItems[$pos])
 }
