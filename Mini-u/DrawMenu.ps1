@@ -1,4 +1,4 @@
-function Draw-Menu {
+function Draw_Menu {
     [CmdletBinding()]
     param (
         [Parameter()]
@@ -32,11 +32,14 @@ function Draw-Menu {
     Write-Host ($titlePaddingString)($menuTitle)
     Write-Host $('-' * $consoleWidth -join '')
 
-    for ($i = 0; $i -le $menuLength; $i++) {
+    $currentDescription = ""
+
+    for ($i = 0; $i -lt $menuLength; $i++) {
         Write-Host "`t" -NoNewLine
         if ($i -eq $menuPosition) {
             Write-Host "$($menuItems[$i])" -ForegroundColor $backgroundColor -BackgroundColor $foregroundColor
-            $curItem = $menuItems[$i]
+            $currentItem = $menuItems[$i]
+            $currentDescription = ($object | Where-Object { $_.Name -eq $currentItem }).Value.Description
         } else {
             Write-Host "$($menuItems[$i])" -ForegroundColor $foregroundColor -BackgroundColor $backgroundColor
         }
@@ -45,8 +48,8 @@ function Draw-Menu {
     Write-Host $('-' * $consoleWidth -join '')
     Write-Host ($descriptionPaddingString)($secondaryKey)
     Write-Host $('-' * $consoleWidth -join '')
-    Write-Host "`t" -NoNewLine
-    Write-Host ($object | ?{$_.Name -eq $curItem}).Value.Description
+    # Display the description after the menu is rendered.
+    Write-Host "`t$currentDescription"
 }
 
 function Menu {
@@ -64,11 +67,11 @@ function Menu {
     )
     $keycode = 0
     $pos = 0
-    Draw-Menu $menuItems $pos $menuTitle
+    
     while ($keycode -ne 13) {
+        Draw_Menu $menuItems $pos $menuTitle $object
         $press = $host.ui.rawui.readkey("NoEcho,IncludeKeyDown")
         $keycode = $press.virtualkeycode
-        Write-host "$($press.character)" -NoNewLine
         if ($keycode -eq 38) {
             $pos--
         }
@@ -81,7 +84,6 @@ function Menu {
         if ($pos -ge $menuItems.length) {
             $pos = 0
         }
-        Draw-Menu $menuItems $pos $menuTitle $object
     }
     return $($menuItems[$pos])
 }
