@@ -1,4 +1,4 @@
-function Draw_Menu {
+function Draw-Menu {
     [CmdletBinding()]
     param (
         [Parameter()]
